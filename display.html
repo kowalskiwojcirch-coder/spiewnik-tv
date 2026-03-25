@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background-color: #000;
+            color: #ff8c00;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        #content {
+            font-size: 5.5vw; /* Skaluje się do wielkości TV */
+            line-height: 1.3;
+            width: 90%;
+            text-align: left;
+            white-space: pre-wrap;
+            /* Efekt lekkiego świecenia punktowego (retro LED) */
+            text-shadow: 0 0 5px rgba(255, 140, 0, 0.5);
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="content"></div>
+
+<script>
+    const bc = new BroadcastChannel('church_tv');
+    const display = document.getElementById('content');
+
+    bc.onmessage = (event) => {
+        if (event.data.type === 'UPDATE') {
+            display.innerText = event.data.text;
+        } else if (event.data.type === 'CLEAR') {
+            display.innerText = '';
+        }
+    };
+</script>
+
+</body>
+</html>
