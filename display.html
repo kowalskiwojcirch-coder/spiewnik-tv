@@ -6,66 +6,54 @@
         body, html {
             margin: 0; padding: 0;
             background-color: #000;
-            color: #ff9500; /* Klasyczny kolor diody bursztynowej */
-            height: 100vh;
-            width: 100vw;
+            color: #ff9d00;
+            height: 100vh; width: 100vw;
             overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-family: Arial, Helvetica, sans-serif;
-            font-weight: bold; /* Normalny-bold, nie przesadzony */
+            font-weight: bold;
             text-transform: uppercase;
         }
 
-        /* WARSTWA 1: FIZYCZNE WGŁĘBIENIA W TABLICY (TŁO) */
-        .led-panel {
+        /* TŁO: STATYCZNA MATRYCA (opcjonalnie, można usunąć jeśli przeszkadza) */
+        .led-bg {
             position: absolute;
-            width: 100%; height: 100%;
-            /* Symulacja plastikowej kratki, w której siedzą diody */
-            background: 
-                radial-gradient(circle at center, #111 20%, #000 40%);
-            background-size: 22px 22px; /* ROZMIAR POJEDYNCZEJ DIODY */
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
             z-index: 1;
         }
 
-        /* WARSTWA 2: TEKST JAKO ZBIÓR ŚWIECĄCYCH PUNKTÓW */
         #display-text {
             position: relative;
-            width: 92%;
-            font-size: 8vw;
-            line-height: 1.2;
+            width: 90vw;
             text-align: left;
             white-space: pre-wrap;
-            letter-spacing: 2px;
             z-index: 5;
+            line-height: 1.1;
+            /* POCZĄTKOWA WIELKOŚĆ */
+            font-size: 10vh; 
+            letter-spacing: 0.05em;
 
-            /* KLUCZ DO REALIZMU: MASKA WYCINAJĄCA IDEALNE DIODY */
-            -webkit-mask-image: radial-gradient(circle, white 35%, transparent 45%);
-            mask-image: radial-gradient(circle, white 35%, transparent 45%);
-            mask-size: 22px 22px; /* Musi być identyczny z background-size panelu! */
+            /* KLUCZOWE: Maska przypisana do rozmiaru fontu (em) */
+            /* Dzięki temu kropki skalują się RAZEM z tekstem */
+            -webkit-mask-image: radial-gradient(circle, white 40%, transparent 55%);
+            mask-image: radial-gradient(circle, white 40%, transparent 55%);
             
-            /* EFEKT ŚWIECENIA GAZU W DIODZIE */
-            text-shadow: 
-                0 0 5px rgba(255, 149, 0, 1),
-                0 0 15px rgba(255, 149, 0, 0.5);
-            
-            /* Wyłączenie wygładzania fontu, by krawędzie były ostre na kropkach */
-            -webkit-font-smoothing: none;
+            /* Ustawienie rozmiaru maski na 0.1em sprawia, że kropka 
+               zawsze stanowi 1/10 wysokości litery, nieważne jak tekst się skaluje */
+            mask-size: 0.12em 0.12em; 
+            -webkit-mask-size: 0.12em 0.12em;
+
+            text-shadow: 0 0 10px rgba(255, 157, 0, 0.5);
         }
 
-        /* WARSTWA 3: SZKLANY REFLEKS / KURZ NA EKRANIE (Dla realizmu) */
-        .glass-overlay {
+        /* Subtelne linie "rastrowe" dla realizmu, które też się nie rozjeżdżają */
+        .scanlines {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            /* Delikatne poziome linie skanowania jak w starym TV */
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.15) 0px,
-                rgba(0, 0, 0, 0.15) 1px,
-                transparent 1px,
-                transparent 2px
-            );
+            background: linear-gradient(to bottom, rgba(0,0,0,0) 50%, rgba(0,0,0,0.5) 50%);
+            background-size: 100% 4px;
             z-index: 10;
             pointer-events: none;
         }
@@ -73,26 +61,35 @@
 </head>
 <body>
 
-    <div class="led-panel"></div>
-    <div class="glass-overlay"></div>
-    <div id="display-text">ZAŁADUJ PIEŚŃ...</div>
+    <div class="led-bg"></div>
+    <div class="scanlines"></div>
+    <div id="display-text">ZAŁADUJ...</div>
 
     <script>
         const bc = new BroadcastChannel('church_system');
         const box = document.getElementById('display-text');
 
+        function adjustFontSize() {
+            let fontSize = 18; // Startujemy od bardzo dużego
+            box.style.fontSize = fontSize + "vh";
+
+            // Skalowanie w dół, aż się zmieści w pionie i poziomie
+            while ((box.scrollHeight > window.innerHeight * 0.85 || box.scrollWidth > window.innerWidth * 0.9) && fontSize > 2) {
+                fontSize -= 0.5;
+                box.style.fontSize = fontSize + "vh";
+            }
+        }
+
         bc.onmessage = (msg) => {
             if (msg.data.action === 'update') {
-                // Szybki efekt "odświeżania" matrycy
-                box.style.opacity = 0;
-                setTimeout(() => {
-                    box.innerText = msg.data.text;
-                    box.style.opacity = 1;
-                }, 40);
+                box.innerText = msg.data.text;
+                setTimeout(adjustFontSize, 10);
             } else if (msg.data.action === 'clear') {
                 box.innerText = '';
             }
         };
+
+        window.onresize = adjustFontSize;
     </script>
 </body>
 </html>
