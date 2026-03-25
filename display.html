@@ -3,74 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        /* Reset i konfiguracja bazowa */
         body, html {
             margin: 0; padding: 0;
             background-color: #000;
-            color: #ffaa00; /* Klasyczny bursztynowy pomarańcz */
+            color: #ff9d00;
             height: 100vh;
             width: 100vw;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            /* FONT ARIAL / BEZSZERYFOWY - dla czytelności z końca kościoła */
-            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+            font-family: Arial, sans-serif;
             font-weight: 900;
             text-transform: uppercase;
         }
 
-        /* TŁO: GRUBA SIATKA MODUŁÓW (PIKSELI) */
-        .module-grid {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            /* Tworzy grube, wyraziste czarne linie podziału */
-            background-image: 
-                linear-gradient(rgba(0,0,0,1) 4px, transparent 4px),
-                linear-gradient(90deg, rgba(0,0,0,1) 4px, transparent 4px);
-            background-size: 15px 15px; /* <--- OTO ZMIANA! DUŻE PIKSELE */
-            z-index: 10;
-            pointer-events: none;
-            /* Delikatne przyciemnienie, żeby siatka nie raziła */
-            opacity: 0.9;
-        }
-
-        /* TEKST */
-        #display-text {
-            width: 90%;
-            /* Bardzo duży font, żeby litery nachodziły na siatkę */
-            font-size: 7vw; 
-            line-height: 1.2;
-            text-align: left;
-            white-space: pre-wrap;
-            letter-spacing: -2px; /* Ciasne ustawienie Arialowe */
-            z-index: 5;
-            
-            /* Mocniejszy blask LED, bo piksele są większe */
-            text-shadow: 
-                0 0 10px rgba(255, 170, 0, 0.7),
-                0 0 20px rgba(255, 170, 0, 0.4);
-            
-            /* Płynne przejście przy zmianie slajdu */
-            transition: opacity 0.3s ease-in-out;
-        }
-
-        /* SYMULACJA WYŁĄCZONYCH DIOD (Głębia w tle) */
-        .empty-dots-bg {
+        /* TŁO: GIGANTYCZNE WYŁĄCZONE DIODY */
+        .matrix-dots-bg {
             position: absolute;
             width: 100%; height: 100%;
-            /* Ciemnoszare kropki w tle, imitujące zgaszone panele */
-            background-image: radial-gradient(#111 20%, transparent 25%);
-            background-size: 15px 15px; /* Synchronizacja z grubą siatką */
+            /* Wielkie, ciemne wgłębienia na diody */
+            background-image: radial-gradient(#1a1a1a 35%, transparent 40%);
+            background-size: 40px 40px; /* <--- GIGANTYCZNY ROZMIAR */
             z-index: 1;
+        }
+
+        /* GRUBE CZARNE RAMY (Fugi między modułami) */
+        .led-grid {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            /* Bardzo grube czarne pasy oddzielające diody */
+            background-image: 
+                linear-gradient(rgba(0,0,0,1) 8px, transparent 8px),
+                linear-gradient(90deg, rgba(0,0,0,1) 8px, transparent 8px);
+            background-size: 40px 40px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        /* TEKST ROZBITY NA WIELKIE KROPKI */
+        #display-text {
+            width: 95%;
+            font-size: 12vw; /* Jeszcze większy font */
+            line-height: 1.0;
+            text-align: left;
+            white-space: pre-wrap;
+            z-index: 5;
+            letter-spacing: -5px;
+            
+            /* MASKA: ROBI WIELKIE KULE ŚWIATŁA Z LITER */
+            -webkit-mask-image: radial-gradient(circle, white 45%, transparent 55%);
+            mask-image: radial-gradient(circle, white 45%, transparent 55%);
+            mask-size: 40px 40px; /* Synchronizacja z tłem */
+
+            /* Ekstremalny blask diody */
+            text-shadow: 
+                0 0 15px #ff9d00,
+                0 0 30px rgba(255, 157, 0, 0.6);
+            
+            transition: opacity 0.2s ease;
         }
     </style>
 </head>
 <body>
 
-    <div class="empty-dots-bg"></div>
-    <div class="module-grid"></div>
-    <div id="display-text">ZAŁADUJ PIEŚŃ Z PANELU...</div>
+    <div class="matrix-dots-bg"></div>
+    <div class="led-grid"></div>
+    <div id="display-text">WIELKIE<br>KROPKI</div>
 
     <script>
         const bc = new BroadcastChannel('church_system');
@@ -78,11 +77,7 @@
 
         bc.onmessage = (msg) => {
             if (msg.data.action === 'update') {
-                box.style.opacity = 0; // Efekt mrugnięcia przy zmianie
-                setTimeout(() => {
-                    box.innerText = msg.data.text;
-                    box.style.opacity = 1;
-                }, 50);
+                box.innerText = msg.data.text;
             } else if (msg.data.action === 'clear') {
                 box.innerText = '';
             }
