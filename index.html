@@ -2,139 +2,82 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Panel Sterowania - Śpiewnik</title>
+    <title>Panel Operatora - System LED</title>
     <style>
-        :root {
-            --bg-dark: #1a1a1a;
-            --panel-grey: #2e2e2e;
-            --accent-orange: #ff8c00;
-            --text-grey: #cccccc;
+        :root { --orange: #ff8c00; --bg: #121212; --panel: #1e1e1e; }
+        body { background: #000; color: #ccc; font-family: sans-serif; margin: 0; display: flex; height: 100vh; }
+        
+        /* Lewy Panel */
+        .sidebar { width: 280px; background: var(--panel); border-right: 2px solid #000; display: flex; flex-direction: column; padding: 10px; }
+        .brand { color: var(--orange); font-weight: bold; text-transform: uppercase; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        
+        .btn { 
+            background: #2a2a2a; color: var(--orange); border: 1px solid #444; 
+            padding: 12px; margin-bottom: 8px; cursor: pointer; text-transform: uppercase; font-size: 11px; font-weight: bold;
         }
+        .btn:hover { background: #333; }
+        .btn:active { background: var(--orange); color: #000; }
+        .btn-clear { color: #ff4444; margin-top: auto; }
 
-        body {
-            background-color: #000;
-            color: var(--text-grey);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            display: flex;
-            height: 100vh;
+        /* Główne okno */
+        .main { flex-grow: 1; display: flex; flex-direction: column; padding: 20px; background: var(--bg); }
+        .preview-label { font-size: 10px; text-transform: uppercase; margin-bottom: 5px; color: #666; }
+        
+        textarea { 
+            flex-grow: 1; background: #000; color: var(--orange); border: 1px solid #333;
+            padding: 20px; font-family: monospace; font-size: 1.5rem; resize: none; text-transform: uppercase;
         }
-
-        /* Lewy pasek boczny */
-        .sidebar {
-            width: 250px;
-            background-color: var(--panel-grey);
-            display: flex;
-            flex-direction: column;
-            border-right: 2px solid #000;
-        }
-
-        .header-bar {
-            background-color: var(--accent-orange);
-            color: #000;
-            padding: 5px 10px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .btn {
-            background-color: var(--panel-grey);
-            color: var(--accent-orange);
-            border: 1px solid #444;
-            padding: 10px;
-            margin: 5px;
-            cursor: pointer;
-            text-align: center;
-            font-size: 12px;
-            text-transform: uppercase;
-        }
-
-        .btn:hover { background-color: #3e3e3e; }
-        .btn:active { background-color: var(--accent-orange); color: #000; }
-
-        .nav-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 5px;
-            padding: 5px;
-        }
-
-        /* Główny obszar */
-        .main-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-        }
-
-        .preview-box {
-            background-color: #000;
-            border: 1px solid #444;
-            flex-grow: 1;
-            color: var(--accent-orange);
-            font-family: 'Courier New', monospace;
-            padding: 20px;
-            font-size: 18px;
-            white-space: pre-wrap;
-            text-transform: uppercase;
-        }
-
-        .status-bar {
-            padding: 10px;
-            font-size: 12px;
-            text-align: right;
-        }
+        
+        .nav-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <div class="header-bar">Śpiewnik - Kontrola</div>
-    <button class="btn" onclick="openDisplay()">Otwórz okno TV</button>
-    <button class="btn">Załaduj Pieśń</button>
-    <div style="margin-top:20px; text-align:center; font-size:10px;">PROJEKCJA</div>
-    <div class="nav-grid">
-        <button class="btn" onclick="prevSlide()"><</button>
-        <button class="btn" onclick="nextSlide()">></button>
+    <div class="brand">System Projekcji 2.0</div>
+    <button class="btn" onclick="window.open('display.html', '_blank', 'width=1280,height=720')">Otwórz Okno TV</button>
+    
+    <div style="margin-top: 20px" class="preview-label">Nawigacja</div>
+    <div class="nav-controls">
+        <button class="btn" onclick="changeSlide(-1)">Poprzedni</button>
+        <button class="btn" onclick="changeSlide(1)">Następny</button>
     </div>
-    <div style="margin-top:auto;">
-        <button class="btn" style="width: calc(100% - 10px);" onclick="sendToDisplay()">Wyślij bieżący slajd</button>
-        <button class="btn" style="width: calc(100% - 10px); color: red;" onclick="clearDisplay()">Wyczyść tablicę</button>
-    </div>
+    
+    <button class="btn" style="margin-top: 10px; background: #222;" onclick="send()">Wyślij na Ekran (Enter)</button>
+    <button class="btn btn-clear" onclick="clearScreen()">Wyczyść Tablicę</button>
 </div>
 
-<div class="main-content">
-    <div class="preview-box" id="preview">
-1.
-Z TEJ BIEDNEJ ZIEMI, Z TEJ ŁEZ DOLINY
-TĘSKNY SIĘ W NIEBO UNOSI DŹWIĘK.
-O BOSKIE SERCE, SKARBIE JEDYNY,
-WYSŁUCHAJ GRZESZNYCH SERC NASZYCH JĘK.
-    </div>
-    <div class="status-bar" id="status">Slajd 1/1</div>
+<div class="main">
+    <div class="preview-label">Podgląd tekstu (Edycja na żywo)</div>
+    <textarea id="editor">BĘDĘ PANU W KAŻDEJ
+PORZE ŚPIEWAŁ PIEŚŃ
+WDZIĘCZNOŚCI. NIECH
+Z UST MOICH CHWAŁA
+JEGO 
+NIEUSTANNIE PŁYNIE.</textarea>
 </div>
 
 <script>
-    const bc = new BroadcastChannel('church_tv');
-    let currentText = document.getElementById('preview').innerText;
+    const bc = new BroadcastChannel('church_system');
+    const editor = document.getElementById('editor');
 
-    function openDisplay() {
-        window.open('display.html', 'ChurchDisplay', 'width=800,height=600');
+    function send() {
+        bc.postMessage({ action: 'update', text: editor.value });
     }
 
-    function sendToDisplay() {
-        const text = document.getElementById('preview').innerText;
-        bc.postMessage({ type: 'UPDATE', text: text });
+    function clearScreen() {
+        bc.postMessage({ action: 'clear' });
     }
 
-    function clearDisplay() {
-        bc.postMessage({ type: 'CLEAR' });
-    }
+    // Obsługa klawisza Enter do wysyłania
+    editor.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.ctrlKey) { send(); e.preventDefault(); }
+    });
 
-    // Prosta nawigacja (można rozbudować o bazę JSON)
-    function nextSlide() { console.log("Next"); sendToDisplay(); }
-    function prevSlide() { console.log("Prev"); sendToDisplay(); }
+    function changeSlide(dir) {
+        // Tu można dodać logikę przełączania zwrotek z bazy danych
+        send();
+    }
 </script>
-
 </body>
 </html>
