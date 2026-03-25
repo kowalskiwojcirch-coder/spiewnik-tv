@@ -2,82 +2,107 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <title>Panel Operatora - System LED</title>
+    <title>Panel Operatora - System Slajdów</title>
     <style>
-        :root { --orange: #ff8c00; --bg: #121212; --panel: #1e1e1e; }
-        body { background: #000; color: #ccc; font-family: sans-serif; margin: 0; display: flex; height: 100vh; }
-        
-        /* Lewy Panel */
-        .sidebar { width: 280px; background: var(--panel); border-right: 2px solid #000; display: flex; flex-direction: column; padding: 10px; }
-        .brand { color: var(--orange); font-weight: bold; text-transform: uppercase; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        
-        .btn { 
-            background: #2a2a2a; color: var(--orange); border: 1px solid #444; 
-            padding: 12px; margin-bottom: 8px; cursor: pointer; text-transform: uppercase; font-size: 11px; font-weight: bold;
-        }
-        .btn:hover { background: #333; }
-        .btn:active { background: var(--orange); color: #000; }
-        .btn-clear { color: #ff4444; margin-top: auto; }
-
-        /* Główne okno */
-        .main { flex-grow: 1; display: flex; flex-direction: column; padding: 20px; background: var(--bg); }
-        .preview-label { font-size: 10px; text-transform: uppercase; margin-bottom: 5px; color: #666; }
+        :root { --orange: #ff8c00; --bg: #1a1a1a; }
+        body { background: #000; color: #fff; font-family: sans-serif; display: flex; height: 100vh; margin: 0; }
+        .sidebar { width: 300px; background: #222; padding: 15px; border-right: 2px solid #000; display: flex; flex-direction: column; }
+        .main { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; background: var(--bg); }
         
         textarea { 
-            flex-grow: 1; background: #000; color: var(--orange); border: 1px solid #333;
-            padding: 20px; font-family: monospace; font-size: 1.5rem; resize: none; text-transform: uppercase;
+            flex-grow: 1; background: #000; color: var(--orange); border: 1px solid #444;
+            padding: 15px; font-family: monospace; font-size: 16px; resize: none;
         }
         
-        .nav-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .controls { margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { 
+            padding: 12px; background: #333; color: var(--orange); border: 1px solid var(--orange); 
+            cursor: pointer; font-weight: bold; text-transform: uppercase;
+        }
+        .btn:hover { background: var(--orange); color: #000; }
+        .status { margin-top: 10px; font-size: 12px; color: #888; text-align: center; }
+        p { font-size: 11px; color: #aaa; }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <div class="brand">System Projekcji 2.0</div>
-    <button class="btn" onclick="window.open('display.html', '_blank', 'width=1280,height=720')">Otwórz Okno TV</button>
-    
-    <div style="margin-top: 20px" class="preview-label">Nawigacja</div>
-    <div class="nav-controls">
-        <button class="btn" onclick="changeSlide(-1)">Poprzedni</button>
-        <button class="btn" onclick="changeSlide(1)">Następny</button>
+    <h3>KONFIGURACJA</h3>
+    <button class="btn" onclick="window.open('display.html', '_blank')">1. OTWÓRZ EKRAN TV</button>
+    <p>Wpisz tekst poniżej. Oddzielaj slajdy podwójnym Enterem.</p>
+    <div class="controls">
+        <button class="btn" onclick="prevSlide()">◀ POPRZEDNI</button>
+        <button class="btn" onclick="nextSlide()">NASTĘPNY ▶</button>
     </div>
-    
-    <button class="btn" style="margin-top: 10px; background: #222;" onclick="send()">Wyślij na Ekran (Enter)</button>
-    <button class="btn btn-clear" onclick="clearScreen()">Wyczyść Tablicę</button>
+    <div class="status" id="slideNum">Slajd: 1 / 1</div>
+    <button class="btn" style="margin-top:20px; border-color: red; color: red;" onclick="clearAll()">WYCZYŚĆ TV</button>
 </div>
 
 <div class="main">
-    <div class="preview-label">Podgląd tekstu (Edycja na żywo)</div>
-    <textarea id="editor">BĘDĘ PANU W KAŻDEJ
-PORZE ŚPIEWAŁ PIEŚŃ
+    <textarea id="textInput" oninput="updateSlides()">
+BĘDĘ PANU W KAŻDEJ
+PORZE ŚPIEWAŁ PIEŚŃ.
+
 WDZIĘCZNOŚCI. NIECH
-Z UST MOICH CHWAŁA
-JEGO 
-NIEUSTANNIE PŁYNIE.</textarea>
+Z UST MOICH CHWAŁA.
+
+JEGO NIEUSTANNIE
+PŁYNIE ĆĄÓŹĘŁŃ.</textarea>
 </div>
 
 <script>
     const bc = new BroadcastChannel('church_system');
-    const editor = document.getElementById('editor');
+    let slides = [];
+    let currentIdx = 0;
 
-    function send() {
-        bc.postMessage({ action: 'update', text: editor.value });
+    function updateSlides() {
+        const rawText = document.getElementById('textInput').value;
+        // Dzieli tekst na slajdy przy podwójnym enterze
+        slides = rawText.split(/\n\s*\n/).filter(s => s.trim() !== "");
+        if (currentIdx >= slides.length) currentIdx = Math.max(0, slides.length - 1);
+        updateLabel();
+        send();
     }
 
-    function clearScreen() {
+    function send() {
+        if (slides[currentIdx]) {
+            bc.postMessage({ action: 'update', text: slides[currentIdx].trim() });
+        }
+    }
+
+    function nextSlide() {
+        if (currentIdx < slides.length - 1) {
+            currentIdx++;
+            updateLabel();
+            send();
+        }
+    }
+
+    function prevSlide() {
+        if (currentIdx > 0) {
+            currentIdx--;
+            updateLabel();
+            send();
+        }
+    }
+
+    function updateLabel() {
+        document.getElementById('slideNum').innerText = `Slajd: ${currentIdx + 1} / ${slides.length}`;
+    }
+
+    function clearAll() {
         bc.postMessage({ action: 'clear' });
     }
 
-    // Obsługa klawisza Enter do wysyłania
-    editor.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && e.ctrlKey) { send(); e.preventDefault(); }
+    // Obsługa strzałek na klawiaturze
+    window.addEventListener('keydown', (e) => {
+        if (e.target.tagName !== 'TEXTAREA') {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        }
     });
 
-    function changeSlide(dir) {
-        // Tu można dodać logikę przełączania zwrotek z bazy danych
-        send();
-    }
+    updateSlides();
 </script>
 </body>
 </html>
