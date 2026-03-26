@@ -4,103 +4,109 @@
     <meta charset="UTF-8">
     <style>
         body, html {
-            margin: 0; padding: 0;
-            background-color: #000;
-            color: #ff9d00;
-            height: 100vh; width: 100vw;
-            overflow: hidden;
+            margin: 0; padding: 0; background: #000; color: #ff9d00;
+            height: 100vh; width: 100vw; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
-            font-family: Arial, Helvetica, sans-serif;
-            
-            /* KLUCZ: BARDZO CHUDA CZCIONKA (Thin) */
-            font-weight: 100; 
-            text-transform: uppercase;
+            font-family: Arial, sans-serif; font-weight: 100; text-transform: uppercase;
         }
 
-        /* TŁO: DELIKATNE PUNKTY MATRYCY */
+        /* TŁO MATRYCY (Zgaszone diody) */
         .led-bg {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-image: radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
-            background-size: 16px 16px;
-            z-index: 1;
+            background-size: 14px 14px; z-index: 1;
         }
 
-        #display-text {
-            position: relative;
-            width: 90vw;
-            text-align: left;
-            white-space: pre-wrap;
-            z-index: 5;
-            line-height: 1.15;
-            
-            /* WIĘKSZE ODSTĘPY MIĘDZY CHUDYMI LITERAMI */
-            letter-spacing: 0.15em; 
+        /* GWIAZDKI W ROGACH */
+        .corner-star {
+            position: absolute;
+            font-size: 40px;
+            color: #ff9d00;
+            opacity: 0; /* Domyślnie schowane */
+            transition: opacity 0.4s ease-in-out;
+            z-index: 20;
+            /* Efekt kropkowania gwiazdek */
+            -webkit-mask-image: radial-gradient(circle, white 35%, transparent 55%);
+            mask-image: radial-gradient(circle, white 35%, transparent 55%);
+            mask-size: 6px 6px;
+        }
 
-            /* KLUCZ: GĘSTSZA MASKA RELATYWNA (0.07em) */
-            /* Zmniejszyłem wartość, aby kropki były drobniejsze i gęstsze (efekt 75%) */
+        /* Pozycje gwiazdek */
+        .tl { top: 30px; left: 30px; }
+        .tr { top: 30px; right: 30px; }
+        .bl { bottom: 30px; left: 30px; }
+        .br { bottom: 30px; right: 30px; }
+
+        /* Kiedy body ma klasę 'no-text', gwiazdki się pojawiają */
+        body.no-text .corner-star {
+            opacity: 0.5;
+        }
+
+        /* GŁÓWNY TEKST */
+        #display-text {
+            position: relative; width: 92vw; z-index: 10;
+            text-align: left; white-space: pre-wrap;
+            line-height: 1.1; letter-spacing: 0.12em;
+            
+            /* Maska kropkowa dla chudej czcionki */
             -webkit-mask-image: radial-gradient(circle, white 35%, transparent 50%);
             mask-image: radial-gradient(circle, white 35%, transparent 50%);
-            
-            /* To sprawia, że kropki "trzymają się" smukłej litery przy skalowaniu */
             mask-size: 0.07em 0.07em; 
             -webkit-mask-size: 0.07em 0.07em;
 
-            /* Subtelniejszy blask dla chudych liter */
-            text-shadow: 0 0 10px rgba(255, 157, 0, 0.4);
-            transition: opacity 0.2s ease;
+            text-shadow: 0 0 10px rgba(255, 157, 0, 0.3);
         }
 
-        /* EFEKT: SUBTELNE LINIE PANELU LED (Poziome rastery) */
+        /* Linie poziome (Raster TV) */
         .scanlines {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.2) 0px,
-                rgba(0, 0, 0, 0.2) 1px,
-                transparent 1px,
-                transparent 2px
-            );
-            z-index: 10;
-            pointer-events: none;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, transparent 2px);
+            z-index: 15; pointer-events: none;
         }
     </style>
 </head>
-<body>
+<body class="no-text"> <div class="corner-star tl">*</div>
+    <div class="corner-star tr">*</div>
+    <div class="corner-star bl">*</div>
+    <div class="corner-star br">*</div>
 
     <div class="led-bg"></div>
     <div class="scanlines"></div>
-    <div id="display-text">BĘDĘ PANU W KAŻDEJ PORZE ŚPIEWAŁ PIEŚŃ. (TEST ĆĄÓŹĘŁŃ)</div>
+    <div id="display-text"></div>
 
     <script>
         const bc = new BroadcastChannel('church_system');
         const box = document.getElementById('display-text');
+        const body = document.body;
 
-        // FUNKCJA SKALUJĄCA CHUDY FONT
         function adjustFontSize() {
-            let fontSize = 16; // Startowa wielkość (vh)
+            let fontSize = 14; 
             box.style.fontSize = fontSize + "vh";
-
-            // Skalowanie w dół, dopóki tekst się nie mieści
-            while ((box.scrollHeight > window.innerHeight * 0.88 || box.scrollWidth > window.innerWidth * 0.90) && fontSize > 2) {
-                fontSize -= 0.4;
+            // Dopasowanie do ekranu
+            while ((box.scrollHeight > window.innerHeight * 0.88 || box.scrollWidth > window.innerWidth * 0.92) && fontSize > 1) {
+                fontSize -= 0.2;
                 box.style.fontSize = fontSize + "vh";
             }
         }
 
         bc.onmessage = (msg) => {
             if (msg.data.action === 'update') {
-                box.innerText = msg.data.text;
+                const content = msg.data.text ? msg.data.text.trim() : "";
+                box.innerText = content;
+
+                // LOGIKA GWIAZDEK:
+                // Jeśli treść jest pusta, dodaj klasę pokazującą gwiazdki
+                if (content === "") {
+                    body.classList.add('no-text');
+                } else {
+                    body.classList.remove('no-text');
+                }
+
                 requestAnimationFrame(adjustFontSize);
-            } else if (msg.data.action === 'clear') {
-                box.innerText = '';
             }
         };
 
         window.onresize = adjustFontSize;
-        // Startowe skalowanie
-        adjustFontSize();
     </script>
 </body>
 </html>
