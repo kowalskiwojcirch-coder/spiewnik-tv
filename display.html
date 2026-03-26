@@ -7,7 +7,7 @@
             margin: 0; padding: 0; background: #000; color: #ff9d00;
             height: 100vh; width: 100vw; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
-            font-family: Arial, sans-serif; font-weight: 100; text-transform: uppercase;
+            font-family: Arial, Helvetica, sans-serif; font-weight: 100; text-transform: uppercase;
         }
 
         .led-bg {
@@ -16,40 +16,39 @@
             background-size: 16px 16px; z-index: 1;
         }
 
-        /* GWIAZDKI */
+        /* GWIAZDKI - STATYCZNE I WIELKIE */
         .corner-star {
-            position: absolute; font-size: 100px; color: #ff9d00;
-            opacity: 0; z-index: 20; transition: opacity 0.5s ease;
+            position: absolute; font-size: 120px; color: #ff9d00;
+            opacity: 0; z-index: 20; transition: opacity 0.2s;
             -webkit-mask-image: radial-gradient(circle, white 40%, transparent 60%);
-            mask-size: 10px 10px;
+            mask-size: 12px 12px;
         }
         body.no-text .corner-star { opacity: 0.7; }
-        .tl { top: 20px; left: 20px; } .tr { top: 20px; right: 20px; }
-        .bl { bottom: 20px; left: 20px; } .br { bottom: 20px; right: 20px; }
+        .tl { top: 10px; left: 10px; } .tr { top: 10px; right: 10px; }
+        .bl { bottom: 10px; left: 10px; } .br { bottom: 10px; right: 10px; }
 
-        /* KONTENER ANIMACJI */
+        /* KONTENER Z BŁYSKAWICZNĄ ANIMACJĄ */
         #display-container {
-            width: 98vw; height: 96vh;
+            width: 100vw; height: 100vh;
             display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.3s ease-in-out; /* PŁYNNE PRZEJŚCIE */
+            transition: opacity 0.1s ease-in-out; /* TURBO SZYBKO */
             opacity: 1; z-index: 10;
         }
 
-        /* TEKST - EKSTREMALNIE WIELKI */
+        /* TEKST - ABSOLUTNY MAKSYMALNY ROZMIAR */
         #display-text {
-            width: 100%;
+            width: 98%;
             text-align: left; white-space: pre-wrap;
-            line-height: 0.8; /* Jeszcze ciaśniej dla większych liter */
-            letter-spacing: -0.02em; 
-            font-size: 30vh; /* Start od ogromu */
+            line-height: 0.72; /* Ekstremalnie ciasno = wielkie litery */
+            letter-spacing: -0.01em; 
+            font-size: 40vh; /* Start od ogromnej wartości */
             
             -webkit-mask-image: radial-gradient(circle, white 45%, transparent 55%);
             mask-image: radial-gradient(circle, white 45%, transparent 55%);
-            mask-size: 0.06em 0.06em; 
+            mask-size: 0.05em 0.05em; 
 
-            text-shadow: 0 0 15px rgba(255, 157, 0, 0.4);
+            text-shadow: 0 0 10px rgba(255, 157, 0, 0.4);
             display: inline-block;
-            transform-origin: center;
         }
 
         .scanlines {
@@ -58,7 +57,6 @@
             z-index: 15; pointer-events: none;
         }
 
-        /* Klasa do animacji znikania */
         .fade-out { opacity: 0 !important; }
     </style>
 </head>
@@ -81,15 +79,15 @@
         const body = document.body;
 
         function adjustFontSize() {
-            let fontSize = 35; // Gigantyczny start
+            let fontSize = 40; // Mega start
             box.style.fontSize = fontSize + "vh";
 
-            const maxHeight = window.innerHeight * 0.94;
-            const maxWidth = window.innerWidth * 0.96;
+            // Wykorzystujemy 98% wysokości i szerokości okna
+            const maxHeight = window.innerHeight * 0.98;
+            const maxWidth = window.innerWidth * 0.98;
 
-            // Zmniejszaj font tylko do momentu aż zmieści się w pionie/poziomie
             while ((box.scrollHeight > maxHeight || box.scrollWidth > maxWidth) && fontSize > 1) {
-                fontSize -= 0.2;
+                fontSize -= 0.3;
                 box.style.fontSize = fontSize + "vh";
             }
         }
@@ -98,11 +96,10 @@
             if (msg.data.action === 'update') {
                 const content = msg.data.text ? msg.data.text.trim() : "";
                 
-                // 1. Rozpocznij wygaszanie
+                // Szybkie wygaszanie
                 container.classList.add('fade-out');
 
                 setTimeout(() => {
-                    // 2. Zmień tekst w trakcie gdy jest niewidoczny
                     box.innerText = content;
                     
                     if (content === "") {
@@ -111,10 +108,9 @@
                         body.classList.remove('no-text');
                         adjustFontSize();
                     }
-
-                    // 3. Pokaż nowy tekst
+                    // Szybkie pojawienie
                     container.classList.remove('fade-out');
-                }, 300); // Czas trwania animacji w CSS
+                }, 100); // Tylko 100ms przerwy
             }
         };
 
