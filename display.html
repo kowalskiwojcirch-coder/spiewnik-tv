@@ -3,52 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <style>
+        /* RESET WSZYSTKIEGO */
+        * { box-sizing: border-box; }
         body, html {
             margin: 0; padding: 0; background: #000; color: #ff9d00;
             height: 100vh; width: 100vw; overflow: hidden;
             display: flex; align-items: center; justify-content: center;
-            font-family: Arial, Helvetica, sans-serif; font-weight: 100; text-transform: uppercase;
+            font-family: Arial, sans-serif; font-weight: 100; text-transform: uppercase;
         }
 
+        /* TŁO MATRYCY */
         .led-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-image: radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
             background-size: 16px 16px; z-index: 1;
         }
 
-        /* GWIAZDKI - STATYCZNE I WIELKIE */
+        /* STATYCZNE GWIAZDKI */
         .corner-star {
-            position: absolute; font-size: 120px; color: #ff9d00;
-            opacity: 0; z-index: 20; transition: opacity 0.2s;
+            position: absolute; font-size: 140px; color: #ff9d00;
+            opacity: 0; z-index: 20; transition: opacity 0.1s;
             -webkit-mask-image: radial-gradient(circle, white 40%, transparent 60%);
             mask-size: 12px 12px;
         }
-        body.no-text .corner-star { opacity: 0.7; }
-        .tl { top: 10px; left: 10px; } .tr { top: 10px; right: 10px; }
-        .bl { bottom: 10px; left: 10px; } .br { bottom: 10px; right: 10px; }
+        body.no-text .corner-star { opacity: 0.8; }
+        .tl { top: 0; left: 10px; } .tr { top: 0; right: 10px; }
+        .bl { bottom: 0; left: 10px; } .br { bottom: 0; right: 10px; }
 
-        /* KONTENER Z BŁYSKAWICZNĄ ANIMACJĄ */
+        /* KONTENER TEKSTU */
         #display-container {
             width: 100vw; height: 100vh;
             display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.1s ease-in-out; /* TURBO SZYBKO */
-            opacity: 1; z-index: 10;
+            transition: opacity 0.05s linear; /* BŁYSKAWICZNE PRZEJŚCIE */
+            z-index: 10;
         }
 
-        /* TEKST - ABSOLUTNY MAKSYMALNY ROZMIAR */
+        /* TEKST - ABSOLUTNE MAKSIMUM */
         #display-text {
-            width: 98%;
-            text-align: left; white-space: pre-wrap;
-            line-height: 0.72; /* Ekstremalnie ciasno = wielkie litery */
-            letter-spacing: -0.01em; 
-            font-size: 40vh; /* Start od ogromnej wartości */
+            display: inline-block;
+            width: 100%;
+            text-align: left; 
+            white-space: pre-wrap;
+            /* EKSTREMALNIE CIASNE LINIE - KLUCZ DO WIELKOŚCI */
+            line-height: 0.7; 
+            letter-spacing: -0.02em; 
+            font-size: 50vh; /* Start od połowy wysokości ekranu na literę! */
             
             -webkit-mask-image: radial-gradient(circle, white 45%, transparent 55%);
             mask-image: radial-gradient(circle, white 45%, transparent 55%);
-            mask-size: 0.05em 0.05em; 
+            mask-size: 0.04em 0.04em; 
 
-            text-shadow: 0 0 10px rgba(255, 157, 0, 0.4);
-            display: inline-block;
+            text-shadow: 0 0 15px rgba(255, 157, 0, 0.6);
         }
 
         .scanlines {
@@ -79,15 +84,17 @@
         const body = document.body;
 
         function adjustFontSize() {
-            let fontSize = 40; // Mega start
+            // Startujemy od absurdalnie wielkiego fontu
+            let fontSize = 50; 
             box.style.fontSize = fontSize + "vh";
 
-            // Wykorzystujemy 98% wysokości i szerokości okna
-            const maxHeight = window.innerHeight * 0.98;
-            const maxWidth = window.innerWidth * 0.98;
+            // Wykorzystujemy 99% dostępnej przestrzeni
+            const maxHeight = window.innerHeight * 0.99;
+            const maxWidth = window.innerWidth * 0.99;
 
-            while ((box.scrollHeight > maxHeight || box.scrollWidth > maxWidth) && fontSize > 1) {
-                fontSize -= 0.3;
+            // Zmniejszaj tylko tyle, ile trzeba żeby nie wystawało
+            while ((box.offsetHeight > maxHeight || box.offsetWidth > maxWidth) && fontSize > 1) {
+                fontSize -= 0.1;
                 box.style.fontSize = fontSize + "vh";
             }
         }
@@ -96,7 +103,6 @@
             if (msg.data.action === 'update') {
                 const content = msg.data.text ? msg.data.text.trim() : "";
                 
-                // Szybkie wygaszanie
                 container.classList.add('fade-out');
 
                 setTimeout(() => {
@@ -108,13 +114,14 @@
                         body.classList.remove('no-text');
                         adjustFontSize();
                     }
-                    // Szybkie pojawienie
                     container.classList.remove('fade-out');
-                }, 100); // Tylko 100ms przerwy
+                }, 50); // Skrócone do 50ms dla turbo reakcji
             }
         };
 
         window.onresize = adjustFontSize;
+        // Inicjalizacja przy ładowaniu
+        window.onload = adjustFontSize;
     </script>
 </body>
 </html>
