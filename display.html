@@ -16,34 +16,31 @@
             background-size: 16px 16px; z-index: 1;
         }
 
-        /* GWIAZDKI - POWRÓT DO CHUDYCH "IGIEŁEK" */
+        /* GWIAZDKI - CHUDE Z MINIMALNYM CIENIEM */
         .corner-star {
             position: absolute; 
-            font-size: 150px; /* Nieco większe, by chude linie były czytelne */
+            font-size: 150px; 
             color: #ff9d00;
             opacity: 0; 
             z-index: 20; 
             transition: opacity 0.2s ease-in-out;
-            
-            /* LEKKOŚĆ I ELEGANCJA */
             font-weight: 100; 
 
-            /* MOCNY BLASK DLA WIDOCZNOŚCI CHUDYCH LINII */
-            text-shadow: 0 0 20px rgba(255, 157, 0, 0.9), 0 0 10px #ff9d00;
+            /* ZMNIEJSZONY CIEŃ (CIENKI I OSTRY) */
+            text-shadow: 0 0 8px rgba(255, 157, 0, 0.7);
             
-            /* GĘSTY RASTER */
             -webkit-mask-image: radial-gradient(circle, white 35%, transparent 60%);
             mask-size: 8px 8px;
         }
         
         body.no-text .corner-star { 
-            opacity: 0.9; 
+            opacity: 0.8; 
         }
         
         .tl { top: 20px; left: 30px; } .tr { top: 20px; right: 30px; }
         .bl { bottom: 20px; left: 30px; } .br { bottom: 20px; right: 30px; }
 
-        /* KONTENER - SZYBKA ANIMACJA (0.2s) */
+        /* KONTENER */
         #viewport {
             width: 100vw; height: 100vh;
             display: flex; align-items: center; justify-content: center;
@@ -52,7 +49,7 @@
             opacity: 1;
         }
 
-        /* TEKST */
+        /* TEKST - OSTRY, MNIEJSZA POŚWIATA */
         #text-shifter {
             display: inline-block;
             white-space: pre-wrap;
@@ -62,12 +59,12 @@
             transform-origin: center;
             font-size: 120px; 
 
-            /* GĘSTA MASKA KROPEK */
             -webkit-mask-image: radial-gradient(circle, white 38%, transparent 55%);
             mask-image: radial-gradient(circle, white 38%, transparent 55%);
             mask-size: 0.09em 0.09em; 
 
-            text-shadow: 0 0 12px rgba(255, 157, 0, 0.5);
+            /* ZMNIEJSZONY CIEŃ TEKSTU */
+            text-shadow: 0 0 6px rgba(255, 157, 0, 0.4);
         }
 
         .scanlines {
