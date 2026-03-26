@@ -16,38 +16,35 @@
             background-size: 16px 16px; z-index: 1;
         }
 
-        /* GWIAZDKI - SOLIDNE I WYRAŹNE */
+        /* GWIAZDKI */
         .corner-star {
             position: absolute; 
             font-size: 130px; 
             color: #ff9d00;
             opacity: 0; 
             z-index: 20; 
-            transition: opacity 0.5s ease-in-out; /* Płynne pojawianie gwiazdek */
+            transition: opacity 0.5s ease-in-out;
             text-shadow: 0 0 30px rgba(255, 157, 0, 0.8), 0 0 10px #ff9d00;
-            -webkit-mask-image: radial-gradient(circle, white 50%, transparent 70%);
-            mask-size: 10px 10px;
+            /* POWRÓT DO GĘSTSZYCH KROPEK NA GWIAZDKACH */
+            -webkit-mask-image: radial-gradient(circle, white 38%, transparent 55%);
+            mask-size: 8px 8px;
             font-weight: bold;
         }
         
-        body.no-text .corner-star { 
-            opacity: 0.9; 
-        }
+        body.no-text .corner-star { opacity: 0.9; }
         
         .tl { top: 30px; left: 40px; } .tr { top: 30px; right: 40px; }
         .bl { bottom: 30px; left: 40px; } .br { bottom: 30px; right: 40px; }
 
-        /* KONTENER Z PŁYNNĄ ANIMACJĄ */
+        /* KONTENER */
         #viewport {
             width: 100vw; height: 100vh;
             display: flex; align-items: center; justify-content: center;
-            /* WYDŁUŻONE I WYGŁADZONE PRZEJŚCIE */
             transition: opacity 0.4s ease-in-out;
             z-index: 10;
-            opacity: 1;
         }
 
-        /* TEKST */
+        /* TEKST - POWRÓT DO TWOICH ULUBIONYCH KROPEK */
         #text-shifter {
             display: inline-block;
             white-space: pre-wrap;
@@ -55,11 +52,12 @@
             line-height: 1.2; 
             letter-spacing: 0.05em;
             transform-origin: center;
-            font-size: 100px; 
+            font-size: 120px; 
 
-            -webkit-mask-image: radial-gradient(circle, white 45%, transparent 55%);
-            mask-image: radial-gradient(circle, white 45%, transparent 55%);
-            mask-size: 5px 5px;
+            /* TWOJA MASKA KROPEK (0.09em) */
+            -webkit-mask-image: radial-gradient(circle, white 38%, transparent 55%);
+            mask-image: radial-gradient(circle, white 38%, transparent 55%);
+            mask-size: 0.09em 0.09em; 
 
             text-shadow: 0 0 12px rgba(255, 157, 0, 0.5);
         }
@@ -70,10 +68,7 @@
             z-index: 15; pointer-events: none;
         }
 
-        /* KLASA DO ANIMACJI */
-        .fade-hidden { 
-            opacity: 0 !important; 
-        }
+        .fade-hidden { opacity: 0 !important; }
     </style>
 </head>
 <body class="no-text">
@@ -96,8 +91,8 @@
 
         function forceScale() {
             shifter.style.transform = "scale(1)";
-            const vW = window.innerWidth * 0.80; 
-            const vH = window.innerHeight * 0.80; 
+            const vW = window.innerWidth * 0.82; 
+            const vH = window.innerHeight * 0.82; 
             const tW = shifter.offsetWidth;
             const tH = shifter.offsetHeight;
             const finalScale = Math.min(vW / tW, vH / tH);
@@ -107,27 +102,20 @@
         bc.onmessage = (msg) => {
             if (msg.data.action === 'update') {
                 const content = msg.data.text ? msg.data.text : "";
-                
-                // 1. Płynne wygaszanie starego tekstu
                 viewport.classList.add('fade-hidden');
 
                 setTimeout(() => {
-                    // 2. Podmiana treści w całkowitej ciemności
                     shifter.innerText = content;
-                    
                     if (content.trim() === "") {
                         body.classList.add('no-text');
                     } else {
                         body.classList.remove('no-text');
-                        forceScale(); // Przeliczenie skali przed pokazaniem
+                        forceScale();
                     }
-
-                    // 3. Płynne rozjaśnianie nowego tekstu
-                    // Małe opóźnienie, żeby przeglądarka zdążyła "przełknąć" nową skalę
                     requestAnimationFrame(() => {
                         viewport.classList.remove('fade-hidden');
                     });
-                }, 400); // Czas dopasowany do transition w CSS
+                }, 400); 
             }
         };
 
