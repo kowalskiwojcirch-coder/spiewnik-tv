@@ -10,62 +10,75 @@
             font-family: Arial, sans-serif; font-weight: 100; text-transform: uppercase;
         }
 
-        /* TŁO MATRYCY (Zgaszone diody) */
+        /* TŁO MATRYCY */
         .led-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-image: radial-gradient(rgba(255,255,255,0.01) 1px, transparent 1px);
-            background-size: 14px 14px; z-index: 1;
+            background-size: 16px 16px; z-index: 1;
         }
 
-        /* GWIAZDKI W ROGACH */
+        /* WIELKIE GWIAZDKI */
         .corner-star {
             position: absolute;
-            font-size: 40px;
+            font-size: 100px; /* Jeszcze większe */
             color: #ff9d00;
-            opacity: 0; /* Domyślnie schowane */
-            transition: opacity 0.4s ease-in-out;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
             z-index: 20;
-            /* Efekt kropkowania gwiazdek */
-            -webkit-mask-image: radial-gradient(circle, white 35%, transparent 55%);
-            mask-image: radial-gradient(circle, white 35%, transparent 55%);
-            mask-size: 6px 6px;
+            -webkit-mask-image: radial-gradient(circle, white 35%, transparent 65%);
+            mask-size: 10px 10px;
+            text-shadow: 0 0 25px rgba(255, 157, 0, 0.7);
         }
 
-        /* Pozycje gwiazdek */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 0.6; }
+            100% { transform: scale(1); opacity: 0.3; }
+        }
+
+        body.no-text .corner-star {
+            opacity: 0.6;
+            animation: pulse 4s infinite ease-in-out;
+        }
+
         .tl { top: 30px; left: 30px; }
         .tr { top: 30px; right: 30px; }
         .bl { bottom: 30px; left: 30px; }
         .br { bottom: 30px; right: 30px; }
 
-        /* Kiedy body ma klasę 'no-text', gwiazdki się pojawiają */
-        body.no-text .corner-star {
-            opacity: 0.5;
-        }
-
-        /* GŁÓWNY TEKST */
+        /* TEKST GŁÓWNY - POWIĘKSZONY */
         #display-text {
-            position: relative; width: 92vw; z-index: 10;
-            text-align: left; white-space: pre-wrap;
-            line-height: 1.1; letter-spacing: 0.12em;
+            position: relative; 
+            width: 94vw; 
+            z-index: 10;
+            text-align: left; 
+            white-space: pre-wrap;
+            line-height: 1.05; 
+            letter-spacing: 0.1em;
             
-            /* Maska kropkowa dla chudej czcionki */
-            -webkit-mask-image: radial-gradient(circle, white 35%, transparent 50%);
-            mask-image: radial-gradient(circle, white 35%, transparent 50%);
-            mask-size: 0.07em 0.07em; 
-            -webkit-mask-size: 0.07em 0.07em;
+            /* POCZĄTKOWY ROZMIAR - POWRÓT DO DUŻEGO */
+            font-size: 18vh; 
 
-            text-shadow: 0 0 10px rgba(255, 157, 0, 0.3);
+            /* KROPKI: IDEALNIE WYŚRODKOWANE */
+            -webkit-mask-image: radial-gradient(circle, white 38%, transparent 55%);
+            mask-image: radial-gradient(circle, white 38%, transparent 55%);
+            mask-size: 0.09em 0.09em; 
+            -webkit-mask-size: 0.09em 0.09em;
+
+            text-shadow: 0 0 12px rgba(255, 157, 0, 0.4);
+            transition: opacity 0.15s;
         }
 
-        /* Linie poziome (Raster TV) */
         .scanlines {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, transparent 2px);
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.12) 0px, transparent 2px);
             z-index: 15; pointer-events: none;
         }
     </style>
 </head>
-<body class="no-text"> <div class="corner-star tl">*</div>
+<body class="no-text">
+
+    <div class="corner-star tl">*</div>
     <div class="corner-star tr">*</div>
     <div class="corner-star bl">*</div>
     <div class="corner-star br">*</div>
@@ -80,11 +93,13 @@
         const body = document.body;
 
         function adjustFontSize() {
-            let fontSize = 14; 
+            // Startujemy od dużej czcionki (18vh to prawie 1/5 ekranu na wysokość litery)
+            let fontSize = 18; 
             box.style.fontSize = fontSize + "vh";
-            // Dopasowanie do ekranu
-            while ((box.scrollHeight > window.innerHeight * 0.88 || box.scrollWidth > window.innerWidth * 0.92) && fontSize > 1) {
-                fontSize -= 0.2;
+
+            // Zmniejszamy tylko tyle, ile absolutnie trzeba, by zmieścić 8 linii
+            while ((box.scrollHeight > window.innerHeight * 0.90 || box.scrollWidth > window.innerWidth * 0.94) && fontSize > 2) {
+                fontSize -= 0.3;
                 box.style.fontSize = fontSize + "vh";
             }
         }
@@ -93,15 +108,13 @@
             if (msg.data.action === 'update') {
                 const content = msg.data.text ? msg.data.text.trim() : "";
                 box.innerText = content;
-
-                // LOGIKA GWIAZDEK:
-                // Jeśli treść jest pusta, dodaj klasę pokazującą gwiazdki
+                
                 if (content === "") {
                     body.classList.add('no-text');
                 } else {
                     body.classList.remove('no-text');
                 }
-
+                
                 requestAnimationFrame(adjustFontSize);
             }
         };
