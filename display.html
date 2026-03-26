@@ -8,7 +8,6 @@
             margin: 0; padding: 0; background: #000; color: #ff9d00;
             height: 100vh; width: 100vw; overflow: hidden;
             font-family: Arial, sans-serif; font-weight: 100;
-            /* Usunięto wymuszanie wielkich liter */
         }
 
         .led-bg {
@@ -17,42 +16,53 @@
             background-size: 16px 16px; z-index: 1;
         }
 
-        /* GWIAZDKI */
+        /* GWIAZDKI - BARDZIEJ WIDOCZNE */
         .corner-star {
-            position: absolute; font-size: 110px; color: #ff9d00;
-            opacity: 0; z-index: 20; transition: opacity 0.1s;
-            -webkit-mask-image: radial-gradient(circle, white 40%, transparent 60%);
-            mask-size: 12px 12px;
+            position: absolute; 
+            font-size: 130px; /* Nieco większe */
+            color: #ff9d00;
+            opacity: 0; 
+            z-index: 20; 
+            transition: opacity 0.2s;
+            /* Mocniejszy blask */
+            text-shadow: 0 0 30px rgba(255, 157, 0, 0.9), 0 0 10px #ff9d00;
+            -webkit-mask-image: radial-gradient(circle, white 50%, transparent 70%);
+            mask-size: 10px 10px;
+            font-weight: bold; /* Pogrubione dla widoczności */
         }
-        body.no-text .corner-star { opacity: 0.7; }
-        .tl { top: 20px; left: 30px; } .tr { top: 20px; right: 30px; }
-        .bl { bottom: 20px; left: 30px; } .br { bottom: 20px; right: 30px; }
+        
+        body.no-text .corner-star { 
+            opacity: 0.9; /* Bardzo widoczne */
+        }
+        
+        .tl { top: 30px; left: 40px; } .tr { top: 30px; right: 40px; }
+        .bl { bottom: 30px; left: 40px; } .br { bottom: 30px; right: 40px; }
 
         /* KONTENER */
         #viewport {
             width: 100vw; height: 100vh;
             display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.08s ease-in-out;
+            transition: opacity 0.1s ease-in-out;
             z-index: 10;
         }
 
-        /* TEKST */
+        /* TEKST - LUŹNIEJSZY I MNIEJSZY */
         #text-shifter {
             display: inline-block;
             white-space: pre-wrap;
             text-align: left;
-            /* Odstęp 0.95 chroni ogonki liter g, j, y, p */
-            line-height: 0.95; 
-            letter-spacing: 0.01em;
+            /* ZWIĘKSZONY ODSTĘP (tekst nie jest już tak blisko siebie) */
+            line-height: 1.2; 
+            letter-spacing: 0.05em;
             transform-origin: center;
             
-            font-size: 120px; 
+            font-size: 100px; 
 
             -webkit-mask-image: radial-gradient(circle, white 45%, transparent 55%);
             mask-image: radial-gradient(circle, white 45%, transparent 55%);
-            mask-size: 6px 6px;
+            mask-size: 5px 5px;
 
-            text-shadow: 0 0 10px rgba(255, 157, 0, 0.4);
+            text-shadow: 0 0 12px rgba(255, 157, 0, 0.5);
         }
 
         .scanlines {
@@ -85,9 +95,9 @@
         function forceScale() {
             shifter.style.transform = "scale(1)";
             
-            // Margines 88% daje idealny balans wielkości i odstępu od brzegów
-            const vW = window.innerWidth * 0.88; 
-            const vH = window.innerHeight * 0.88; 
+            // MNIEJSZA SKALA (80% zamiast 88-96%) - tekst będzie mniejszy i dalej od brzegów
+            const vW = window.innerWidth * 0.80; 
+            const vH = window.innerHeight * 0.80; 
             
             const tW = shifter.offsetWidth;
             const tH = shifter.offsetHeight;
@@ -115,7 +125,7 @@
                         forceScale();
                     }
                     viewport.classList.remove('fade-out');
-                }, 80);
+                }, 100);
             }
         };
 
