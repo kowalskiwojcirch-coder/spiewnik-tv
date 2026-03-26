@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Sterowania LED - System Kościelny</title>
+    <title>Panel Sterowania LED - 8 Linii</title>
     <style>
         :root {
             --accent: #ff9d00;
@@ -16,16 +16,16 @@
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
             display: flex;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* Lewy panel boczny */
+        /* Sidebar */
         .sidebar {
-            width: 350px;
+            width: 320px;
             background-color: var(--card);
             padding: 25px;
             border-right: 1px solid #333;
@@ -33,29 +33,16 @@
             flex-direction: column;
             gap: 20px;
             box-shadow: 5px 0 15px rgba(0,0,0,0.5);
-            z-index: 10;
         }
 
         h1 {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--accent);
             margin: 0;
             text-transform: uppercase;
             letter-spacing: 2px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 15px;
         }
 
-        .instruction {
-            font-size: 0.85rem;
-            color: #888;
-            line-height: 1.5;
-            background: rgba(0,0,0,0.2);
-            padding: 10px;
-            border-radius: 6px;
-        }
-
-        /* Przyciski */
         .btn {
             padding: 14px;
             border-radius: 8px;
@@ -63,201 +50,175 @@
             font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
-            transition: all 0.2s ease;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            font-size: 0.8rem;
+            transition: 0.2s;
         }
 
-        .btn-primary { background-color: var(--accent); color: #000; }
-        .btn-primary:hover { background-color: #e68d00; transform: translateY(-2px); }
-
-        .btn-outline { background-color: transparent; border: 1px solid #444; color: #ccc; }
+        .btn-primary { background: var(--accent); color: #000; }
+        .btn-outline { background: transparent; border: 1px solid #444; color: #ccc; }
         .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-danger { color: var(--danger); border: 1px solid #522; background: transparent; }
 
-        .btn-danger { background-color: transparent; border: 1px solid #552222; color: var(--danger); }
-        .btn-danger:hover { background-color: #3d1a1a; border-color: var(--danger); }
-
-        /* Nawigacja i status */
-        .nav-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .status-container {
+        .status-pill {
             background: #252525;
             padding: 15px;
             border-radius: 8px;
-            border: 1px solid #333;
             text-align: center;
+            border: 1px solid #333;
         }
 
-        #slideNum { font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
-        #lineNum { font-size: 0.85rem; color: var(--accent); opacity: 0.8; }
+        #lineCount { font-size: 0.8rem; margin-top: 5px; font-weight: bold; }
 
-        /* Obszar główny (Edytor) */
-        .main-content {
+        /* Edytor */
+        .main {
             flex-grow: 1;
             padding: 30px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
         }
 
-        .editor-header {
+        .editor-container {
+            flex-grow: 1;
+            position: relative;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #666;
-            font-size: 0.9rem;
+            flex-direction: column;
         }
 
         textarea {
             flex-grow: 1;
-            background-color: #000;
+            background: #000;
             color: var(--accent);
             border: 2px solid #222;
             border-radius: 12px;
-            padding: 30px;
+            padding: 20px;
             font-size: 1.8rem;
-            line-height: 1.4;
+            line-height: 1.4; /* Ważne dla 8 linii */
             resize: none;
             outline: none;
             font-family: Arial, sans-serif;
-            font-weight: 100; /* Chuda czcionka jak na TV */
-            box-shadow: inset 0 4px 20px rgba(0,0,0,0.8);
-            transition: border-color 0.3s;
+            font-weight: 100;
         }
 
-        textarea:focus {
-            border-color: var(--accent);
-        }
+        textarea:focus { border-color: var(--accent); }
 
-        .footer-info {
-            font-size: 0.75rem;
-            color: #444;
-            text-align: right;
+        .nav-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <h1>LED Control System</h1>
+    <h1>System Pieśni LED</h1>
     
-    <div class="instruction">
-        • Wpisz tekst pieśni (max 8 linii).<br>
-        • <b>Podwójny Enter</b> tworzy nowy slajd.<br>
-        • Użyj <b>strzałek</b> do zmiany slajdów.
+    <button class="btn btn-primary" onclick="window.open('display.html', 'TV', 'width=1280,height=720')">Otwórz ekran TV</button>
+
+    <div class="status-pill">
+        <div id="slideInfo">Slajd: 0 / 0</div>
+        <div id="lineCount">Linie w slajdzie: 0 / 8</div>
     </div>
 
-    <button class="btn btn-primary" onclick="window.open('display.html', 'ChurchTV', 'width=1280,height=720')">
-        ▶ URUCHOM EKRAN TV
-    </button>
-
-    <div class="status-container">
-        <div id="slideNum">SLAJD: 1 / 1</div>
-        <div id="lineNum">LINIE: 0 / 8</div>
+    <div class="nav-controls">
+        <button class="btn btn-outline" onclick="changeSlide(-1)">◀ Wstecz</button>
+        <button class="btn btn-outline" onclick="changeSlide(1)">Dalej ▶</button>
     </div>
 
-    <div class="nav-grid">
-        <button class="btn btn-outline" onclick="changeSlide(-1)">◀ WSTECZ</button>
-        <button class="btn btn-outline" onclick="changeSlide(1)">DALEJ ▶</button>
-    </div>
-
-    <button class="btn btn-danger" style="margin-top: auto;" onclick="clearAll()">
-        ✖ WYCZYŚĆ EKRAN
-    </button>
+    <button class="btn btn-danger" style="margin-top: auto;" onclick="clearAll()">Wyczyść wszystko</button>
 </div>
 
-<div class="main-content">
-    <div class="editor-header">
-        <span>Edytor Tekstu (Arial Thin)</span>
-        <span id="auto-save-status">Zsynchronizowano</span>
+<div class="main">
+    <div style="margin-bottom: 10px; color: #555; font-size: 0.8rem;">
+        Wpisz tekst. Pamiętaj: max 8 linii na slajd. Nowy slajd = podwójny Enter.
     </div>
-    
-    <textarea id="editor" spellcheck="false" placeholder="Wpisz tekst tutaj..." oninput="processText()"></textarea>
-    
-    <div class="footer-info">
-        Skróty: CTRL + Enter (Wyślij) | Strzałki (Nawigacja)
+    <div class="editor-container">
+        <textarea id="editor" placeholder="Wpisz pieśń..." oninput="validateAndProcess()"></textarea>
     </div>
 </div>
 
 <script>
     const bc = new BroadcastChannel('church_system');
     const editor = document.getElementById('editor');
-    const slideLabel = document.getElementById('slideNum');
-    const lineLabel = document.getElementById('lineNum');
-
     let slides = [];
     let currentIdx = 0;
 
-    // Główna funkcja przetwarzająca tekst
-    function processText() {
-        const rawText = editor.value;
+    function validateAndProcess() {
+        const text = editor.value;
         
-        // Liczenie linii w obecnym widoku (edytorze)
-        const lines = rawText.split('\n').length;
-        lineLabel.innerText = `LINIE: ${lines} / 8`;
-        if(lines > 8) lineLabel.style.color = "red"; else lineLabel.style.color = "var(--accent)";
+        // Rozdzielamy na slajdy
+        slides = text.split(/\n\s*\n/).filter(s => s.trim() !== "");
+        
+        // Sprawdzanie ilości linii w aktualnym slajdzie
+        // (Wyszukujemy slajd, w którym aktualnie znajduje się kursor)
+        const cursorSettings = editor.value.substring(0, editor.selectionStart).split(/\n\s*\n/);
+        const currentEditIdx = cursorSettings.length - 1;
+        
+        if (slides[currentEditIdx]) {
+            const linesInCurrent = slides[currentEditIdx].split('\n').length;
+            const lineLabel = document.getElementById('lineCount');
+            lineLabel.innerText = `Linie w slajdzie: ${linesInCurrent} / 8`;
+            
+            if (linesInCurrent > 8) {
+                lineLabel.style.color = "red";
+            } else {
+                lineLabel.style.color = "var(--accent)";
+            }
+        }
 
-        // Dzielenie na slajdy (pusta linia jako separator)
-        slides = rawText.split(/\n\s*\n/).filter(s => s.trim() !== "");
-        
-        // Zabezpieczenie indeksu
+        // Aktualizacja widoku na TV
         if (currentIdx >= slides.length) currentIdx = Math.max(0, slides.length - 1);
-        
-        updateDisplay();
+        updateTV();
     }
 
-    // Wysyłanie danych do ekranu TV
-    function updateDisplay() {
-        const currentContent = slides[currentIdx] || "";
-        slideLabel.innerText = `SLAJD: ${slides.length > 0 ? currentIdx + 1 : 0} / ${slides.length}`;
-        
-        bc.postMessage({ 
-            action: 'update', 
-            text: currentContent.trim() 
-        });
+    function updateTV() {
+        const content = slides[currentIdx] || "";
+        document.getElementById('slideInfo').innerText = `Slajd: ${slides.length > 0 ? currentIdx + 1 : 0} / ${slides.length}`;
+        bc.postMessage({ action: 'update', text: content.trim() });
     }
 
-    // Zmiana slajdu
     function changeSlide(dir) {
-        let newIdx = currentIdx + dir;
-        if (newIdx >= 0 && newIdx < slides.length) {
-            currentIdx = newIdx;
-            updateDisplay();
+        if (slides[currentIdx + dir] !== undefined) {
+            currentIdx += dir;
+            updateTV();
         }
     }
 
-    // Czyszczenie wszystkiego i pokazanie gwiazdek w rogach
     function clearAll() {
         editor.value = '';
         slides = [];
         currentIdx = 0;
-        bc.postMessage({ action: 'update', text: '' }); // Pusty tekst wyzwala gwiazdki w display.html
-        processText();
+        bc.postMessage({ action: 'update', text: '' });
+        validateAndProcess();
     }
 
-    // Obsługa klawiatury
+    // Strzałki na klawiaturze (tylko gdy nie piszemy w edytorze)
     window.addEventListener('keydown', (e) => {
-        // Skróty działają, gdy nie piszemy w edytorze lub z CTRL
         if (document.activeElement !== editor) {
             if (e.key === 'ArrowRight') changeSlide(1);
             if (e.key === 'ArrowLeft') changeSlide(-1);
         }
-        
-        if (e.ctrlKey && e.key === 'Enter') {
-            processText();
+    });
+
+    // Blokada 9 linii w jednym slajdzie (opcjonalne, ale pomocne)
+    editor.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const currentText = editor.value.substring(0, editor.selectionStart).split(/\n\s*\n/).pop();
+            const lines = currentText.split('\n').length;
+            
+            // Jeśli mamy 8 linii i wciskamy Enter, a nie jest to podwójny Enter na nowy slajd
+            if (lines >= 8 && !e.shiftKey) {
+                // Pozwól na enter tylko jeśli to będzie podwójny enter (nowy slajd)
+                const lastChar = editor.value.substring(editor.selectionStart - 1, editor.selectionStart);
+                if (lastChar !== '\n') {
+                    // Tutaj moglibyśmy zablokować, ale lepiej dać ostrzeżenie kolorem
+                }
+            }
         }
     });
 
-    // Inicjalizacja
-    processText();
+    validateAndProcess();
 </script>
-
 </body>
 </html>
