@@ -3,60 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Śpiewnik TV - Panel</title>
+    <title>Panel Sterowania LED - System Kościelny</title>
     <style>
         :root {
-            --accent: #ff9800;
-            --bg-dark: #121212;
-            --panel-bg: #1e1e1e;
-            --text-main: #e0e0e0;
+            --accent: #ff9d00;
+            --bg: #0f0f0f;
+            --card: #1e1e1e;
+            --text: #e0e0e0;
+            --danger: #ff4444;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             display: flex;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* Sidebar */
+        /* Lewy panel boczny */
         .sidebar {
-            width: 320px;
-            background-color: var(--panel-bg);
+            width: 350px;
+            background-color: var(--card);
+            padding: 25px;
             border-right: 1px solid #333;
             display: flex;
             flex-direction: column;
-            padding: 20px;
-            box-shadow: 4px 0 10px rgba(0,0,0,0.3);
+            gap: 20px;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+            z-index: 10;
         }
 
-        h2 { color: var(--accent); font-size: 1.2rem; margin-top: 0; text-transform: uppercase; letter-spacing: 1px; }
-
-        .btn {
-            background: #333;
-            color: white;
-            border: 1px solid #444;
-            padding: 12px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            border-radius: 6px;
-            font-weight: 600;
-            transition: all 0.2s;
+        h1 {
+            font-size: 1.1rem;
+            color: var(--accent);
+            margin: 0;
             text-transform: uppercase;
-            font-size: 0.85rem;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 15px;
         }
 
-        .btn:hover { background: #444; border-color: var(--accent); }
-        .btn-primary { background: var(--accent); color: #000; border: none; }
-        .btn-primary:hover { background: #e68900; }
-        .btn-danger { color: #ff5252; border-color: #552222; }
-        .btn-danger:hover { background: #3d1a1a; }
+        .instruction {
+            font-size: 0.85rem;
+            color: #888;
+            line-height: 1.5;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 6px;
+        }
 
-        /* Main Content */
-        .main {
+        /* Przyciski */
+        .btn {
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background-color: var(--accent); color: #000; }
+        .btn-primary:hover { background-color: #e68d00; transform: translateY(-2px); }
+
+        .btn-outline { background-color: transparent; border: 1px solid #444; color: #ccc; }
+        .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+        .btn-danger { background-color: transparent; border: 1px solid #552222; color: var(--danger); }
+        .btn-danger:hover { background-color: #3d1a1a; border-color: var(--danger); }
+
+        /* Nawigacja i status */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .status-container {
+            background: #252525;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            text-align: center;
+        }
+
+        #slideNum { font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; }
+        #lineNum { font-size: 0.85rem; color: var(--accent); opacity: 0.8; }
+
+        /* Obszar główny (Edytor) */
+        .main-content {
             flex-grow: 1;
             padding: 30px;
             display: flex;
@@ -64,116 +107,155 @@
             gap: 15px;
         }
 
-        .info-bar {
+        .editor-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: #666;
             font-size: 0.9rem;
-            color: #888;
         }
 
         textarea {
             flex-grow: 1;
-            background: #000;
+            background-color: #000;
             color: var(--accent);
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 20px;
-            font-size: 1.4rem;
-            line-height: 1.5;
+            border: 2px solid #222;
+            border-radius: 12px;
+            padding: 30px;
+            font-size: 1.8rem;
+            line-height: 1.4;
             resize: none;
             outline: none;
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
             font-family: Arial, sans-serif;
+            font-weight: 100; /* Chuda czcionka jak na TV */
+            box-shadow: inset 0 4px 20px rgba(0,0,0,0.8);
+            transition: border-color 0.3s;
         }
 
-        .controls-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
+        textarea:focus {
+            border-color: var(--accent);
         }
 
-        .status-pill {
-            background: #2a2a2a;
-            padding: 4px 12px;
-            border-radius: 20px;
-            border: 1px solid #444;
+        .footer-info {
+            font-size: 0.75rem;
+            color: #444;
+            text-align: right;
         }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <h2>Sterowanie TV</h2>
-    <button class="btn btn-primary" onclick="window.open('display.html', 'TVWindow', 'width=1280,height=720')">Podłącz Telewizor</button>
+    <h1>LED Control System</h1>
     
-    <div style="margin-top: 30px">
-        <label style="font-size: 0.75rem; color: #666;">NAWIGACJA SLAJDAMI</label>
-        <div class="controls-grid">
-            <button class="btn" onclick="changeSlide(-1)">◀ WSTECZ</button>
-            <button class="btn" onclick="changeSlide(1)">DALEJ ▶</button>
-        </div>
+    <div class="instruction">
+        • Wpisz tekst pieśni (max 8 linii).<br>
+        • <b>Podwójny Enter</b> tworzy nowy slajd.<br>
+        • Użyj <b>strzałek</b> do zmiany slajdów.
     </div>
 
-    <button class="btn btn-danger" style="margin-top: auto;" onclick="clearDisplay()">WYCZYŚĆ EKRAN (F12)</button>
+    <button class="btn btn-primary" onclick="window.open('display.html', 'ChurchTV', 'width=1280,height=720')">
+        ▶ URUCHOM EKRAN TV
+    </button>
+
+    <div class="status-container">
+        <div id="slideNum">SLAJD: 1 / 1</div>
+        <div id="lineNum">LINIE: 0 / 8</div>
+    </div>
+
+    <div class="nav-grid">
+        <button class="btn btn-outline" onclick="changeSlide(-1)">◀ WSTECZ</button>
+        <button class="btn btn-outline" onclick="changeSlide(1)">DALEJ ▶</button>
+    </div>
+
+    <button class="btn btn-danger" style="margin-top: auto;" onclick="clearAll()">
+        ✖ WYCZYŚĆ EKRAN
+    </button>
 </div>
 
-<div class="main">
-    <div class="info-bar">
-        <span>Edytor Pieśni (użyj podwójnego Entera dla nowego slajdu)</span>
-        <span class="status-pill" id="slideCount">Slajd 1 / 1</span>
+<div class="main-content">
+    <div class="editor-header">
+        <span>Edytor Tekstu (Arial Thin)</span>
+        <span id="auto-save-status">Zsynchronizowano</span>
     </div>
-    <textarea id="editor" placeholder="Wpisz tekst tutaj..." oninput="processText()">
-Z TEJ BIEDNEJ ZIEMI,
-Z TEJ ŁEZ DOLINY.
-
-TĘSKNY SIĘ W NIEBO
-UNOSI DŹWIĘK.
-
-O BOSKIE SERCE,
-SKARBIE JEDYNY!</textarea>
-    <div style="font-size: 0.8rem; color: #555;">Skróty: Strzałki (Lewo/Prawo) - zmiana slajdu | Ctrl+Enter - Wyślij</div>
+    
+    <textarea id="editor" spellcheck="false" placeholder="Wpisz tekst tutaj..." oninput="processText()"></textarea>
+    
+    <div class="footer-info">
+        Skróty: CTRL + Enter (Wyślij) | Strzałki (Nawigacja)
+    </div>
 </div>
 
 <script>
     const bc = new BroadcastChannel('church_system');
+    const editor = document.getElementById('editor');
+    const slideLabel = document.getElementById('slideNum');
+    const lineLabel = document.getElementById('lineNum');
+
     let slides = [];
     let currentIdx = 0;
 
+    // Główna funkcja przetwarzająca tekst
     function processText() {
-        const text = document.getElementById('editor').value;
-        slides = text.split(/\n\s*\n/).filter(s => s.trim() !== "");
+        const rawText = editor.value;
+        
+        // Liczenie linii w obecnym widoku (edytorze)
+        const lines = rawText.split('\n').length;
+        lineLabel.innerText = `LINIE: ${lines} / 8`;
+        if(lines > 8) lineLabel.style.color = "red"; else lineLabel.style.color = "var(--accent)";
+
+        // Dzielenie na slajdy (pusta linia jako separator)
+        slides = rawText.split(/\n\s*\n/).filter(s => s.trim() !== "");
+        
+        // Zabezpieczenie indeksu
         if (currentIdx >= slides.length) currentIdx = Math.max(0, slides.length - 1);
-        updateUI();
+        
+        updateDisplay();
     }
 
-    function updateUI() {
-        document.getElementById('slideCount').innerText = `Slajd ${currentIdx + 1} / ${slides.length}`;
-        bc.postMessage({ action: 'update', text: slides[currentIdx] });
+    // Wysyłanie danych do ekranu TV
+    function updateDisplay() {
+        const currentContent = slides[currentIdx] || "";
+        slideLabel.innerText = `SLAJD: ${slides.length > 0 ? currentIdx + 1 : 0} / ${slides.length}`;
+        
+        bc.postMessage({ 
+            action: 'update', 
+            text: currentContent.trim() 
+        });
     }
 
+    // Zmiana slajdu
     function changeSlide(dir) {
         let newIdx = currentIdx + dir;
         if (newIdx >= 0 && newIdx < slides.length) {
             currentIdx = newIdx;
-            updateUI();
+            updateDisplay();
         }
     }
 
-    function clearDisplay() {
-        bc.postMessage({ action: 'clear' });
+    // Czyszczenie wszystkiego i pokazanie gwiazdek w rogach
+    function clearAll() {
+        editor.value = '';
+        slides = [];
+        currentIdx = 0;
+        bc.postMessage({ action: 'update', text: '' }); // Pusty tekst wyzwala gwiazdki w display.html
+        processText();
     }
 
+    // Obsługa klawiatury
     window.addEventListener('keydown', (e) => {
-        if (document.activeElement.tagName !== 'TEXTAREA') {
+        // Skróty działają, gdy nie piszemy w edytorze lub z CTRL
+        if (document.activeElement !== editor) {
             if (e.key === 'ArrowRight') changeSlide(1);
             if (e.key === 'ArrowLeft') changeSlide(-1);
         }
-        if (e.key === 'F12') clearDisplay();
+        
+        if (e.ctrlKey && e.key === 'Enter') {
+            processText();
+        }
     });
 
-    // Start
+    // Inicjalizacja
     processText();
 </script>
 
