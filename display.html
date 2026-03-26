@@ -7,7 +7,8 @@
         body, html {
             margin: 0; padding: 0; background: #000; color: #ff9d00;
             height: 100vh; width: 100vw; overflow: hidden;
-            font-family: Arial, sans-serif; font-weight: 100; text-transform: uppercase;
+            font-family: Arial, sans-serif; font-weight: 100;
+            /* Usunięto wymuszanie wielkich liter */
         }
 
         .led-bg {
@@ -18,16 +19,16 @@
 
         /* GWIAZDKI */
         .corner-star {
-            position: absolute; font-size: 120px; color: #ff9d00;
+            position: absolute; font-size: 110px; color: #ff9d00;
             opacity: 0; z-index: 20; transition: opacity 0.1s;
             -webkit-mask-image: radial-gradient(circle, white 40%, transparent 60%);
             mask-size: 12px 12px;
         }
-        body.no-text .corner-star { opacity: 0.8; }
-        .tl { top: 10px; left: 20px; } .tr { top: 10px; right: 20px; }
-        .bl { bottom: 10px; left: 20px; } .br { bottom: 10px; right: 20px; }
+        body.no-text .corner-star { opacity: 0.7; }
+        .tl { top: 20px; left: 30px; } .tr { top: 20px; right: 30px; }
+        .bl { bottom: 20px; left: 30px; } .br { bottom: 20px; right: 30px; }
 
-        /* KONTENER GŁÓWNY */
+        /* KONTENER */
         #viewport {
             width: 100vw; height: 100vh;
             display: flex; align-items: center; justify-content: center;
@@ -35,21 +36,21 @@
             z-index: 10;
         }
 
-        /* BLOK TEKSTU - TO GO BĘDZIEMY SKALOWAĆ */
+        /* TEKST */
         #text-shifter {
             display: inline-block;
             white-space: pre-wrap;
             text-align: left;
-            line-height: 0.75; /* Ciasno, by litery były wyższe */
-            letter-spacing: -0.01em;
-            transform-origin: center; /* Powiększaj od środka */
+            /* Odstęp 0.95 chroni ogonki liter g, j, y, p */
+            line-height: 0.95; 
+            letter-spacing: 0.01em;
+            transform-origin: center;
             
-            /* Stały, duży font bazowy */
             font-size: 120px; 
 
             -webkit-mask-image: radial-gradient(circle, white 45%, transparent 55%);
             mask-image: radial-gradient(circle, white 45%, transparent 55%);
-            mask-size: 6px 6px; /* Kropki dopasowane do skali */
+            mask-size: 6px 6px;
 
             text-shadow: 0 0 10px rgba(255, 157, 0, 0.4);
         }
@@ -82,40 +83,35 @@
         const body = document.body;
 
         function forceScale() {
-            // Resetujemy skalę do obliczeń
             shifter.style.transform = "scale(1)";
             
-            const vW = window.innerWidth * 0.96; // 96% szerokości ekranu
-            const vH = window.innerHeight * 0.96; // 96% wysokości ekranu
+            // Margines 88% daje idealny balans wielkości i odstępu od brzegów
+            const vW = window.innerWidth * 0.88; 
+            const vH = window.innerHeight * 0.88; 
             
             const tW = shifter.offsetWidth;
             const tH = shifter.offsetHeight;
 
-            // Obliczamy współczynnik powiększenia dla szerokości i wysokości
             const scaleX = vW / tW;
             const scaleY = vH / tH;
 
-            // Wybieramy mniejszy współczynnik, żeby tekst nie wystawał, 
-            // ale wypełnił ekran do oporu w jednej z osi.
             const finalScale = Math.min(scaleX, scaleY);
-
             shifter.style.transform = `scale(${finalScale})`;
         }
 
         bc.onmessage = (msg) => {
             if (msg.data.action === 'update') {
-                const content = msg.data.text ? msg.data.text.trim() : "";
+                const content = msg.data.text ? msg.data.text : "";
                 
                 viewport.classList.add('fade-out');
 
                 setTimeout(() => {
                     shifter.innerText = content;
                     
-                    if (content === "") {
+                    if (content.trim() === "") {
                         body.classList.add('no-text');
                     } else {
                         body.classList.remove('no-text');
-                        // Dajemy przeglądarce milisekundę na wyrenderowanie tekstu przed skalowaniem
                         forceScale();
                     }
                     viewport.classList.remove('fade-out');
@@ -123,10 +119,7 @@
             }
         };
 
-        // Reaguj na F11 i każdą zmianę okna
         window.onresize = forceScale;
-        
-        // Pierwsze odpalenie
         window.onload = forceScale;
     </script>
 </body>
