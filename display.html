@@ -16,35 +16,43 @@
             background-size: 16px 16px; z-index: 1;
         }
 
-        /* GWIAZDKI */
+        /* GWIAZDKI - POWRÓT DO CHUDYCH "IGIEŁEK" */
         .corner-star {
             position: absolute; 
-            font-size: 130px; 
+            font-size: 150px; /* Nieco większe, by chude linie były czytelne */
             color: #ff9d00;
             opacity: 0; 
             z-index: 20; 
-            transition: opacity 0.5s ease-in-out;
-            text-shadow: 0 0 30px rgba(255, 157, 0, 0.8), 0 0 10px #ff9d00;
-            /* POWRÓT DO GĘSTSZYCH KROPEK NA GWIAZDKACH */
-            -webkit-mask-image: radial-gradient(circle, white 38%, transparent 55%);
+            transition: opacity 0.2s ease-in-out;
+            
+            /* LEKKOŚĆ I ELEGANCJA */
+            font-weight: 100; 
+
+            /* MOCNY BLASK DLA WIDOCZNOŚCI CHUDYCH LINII */
+            text-shadow: 0 0 20px rgba(255, 157, 0, 0.9), 0 0 10px #ff9d00;
+            
+            /* GĘSTY RASTER */
+            -webkit-mask-image: radial-gradient(circle, white 35%, transparent 60%);
             mask-size: 8px 8px;
-            font-weight: bold;
         }
         
-        body.no-text .corner-star { opacity: 0.9; }
+        body.no-text .corner-star { 
+            opacity: 0.9; 
+        }
         
-        .tl { top: 30px; left: 40px; } .tr { top: 30px; right: 40px; }
-        .bl { bottom: 30px; left: 40px; } .br { bottom: 30px; right: 40px; }
+        .tl { top: 20px; left: 30px; } .tr { top: 20px; right: 30px; }
+        .bl { bottom: 20px; left: 30px; } .br { bottom: 20px; right: 30px; }
 
-        /* KONTENER */
+        /* KONTENER - SZYBKA ANIMACJA (0.2s) */
         #viewport {
             width: 100vw; height: 100vh;
             display: flex; align-items: center; justify-content: center;
-            transition: opacity 0.4s ease-in-out;
+            transition: opacity 0.2s ease-in-out; 
             z-index: 10;
+            opacity: 1;
         }
 
-        /* TEKST - POWRÓT DO TWOICH ULUBIONYCH KROPEK */
+        /* TEKST */
         #text-shifter {
             display: inline-block;
             white-space: pre-wrap;
@@ -54,7 +62,7 @@
             transform-origin: center;
             font-size: 120px; 
 
-            /* TWOJA MASKA KROPEK (0.09em) */
+            /* GĘSTA MASKA KROPEK */
             -webkit-mask-image: radial-gradient(circle, white 38%, transparent 55%);
             mask-image: radial-gradient(circle, white 38%, transparent 55%);
             mask-size: 0.09em 0.09em; 
@@ -115,7 +123,7 @@
                     requestAnimationFrame(() => {
                         viewport.classList.remove('fade-hidden');
                     });
-                }, 400); 
+                }, 200); 
             }
         };
 
