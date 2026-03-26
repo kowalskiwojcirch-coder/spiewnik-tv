@@ -17,61 +17,55 @@
             background-size: 16px 16px; z-index: 1;
         }
 
-        /* WIELKIE GWIAZDKI */
+        /* STATYCZNE GWIAZDKI W ROGACH */
         .corner-star {
             position: absolute;
-            font-size: 100px; /* Jeszcze większe */
+            font-size: 120px; /* Wielkie */
             color: #ff9d00;
-            opacity: 0;
-            transition: opacity 0.6s ease-in-out;
+            opacity: 0; /* Ukryte gdy jest tekst */
             z-index: 20;
-            -webkit-mask-image: radial-gradient(circle, white 35%, transparent 65%);
-            mask-size: 10px 10px;
-            text-shadow: 0 0 25px rgba(255, 157, 0, 0.7);
+            /* Ta sama maska co tekst - efekt kropek */
+            -webkit-mask-image: radial-gradient(circle, white 40%, transparent 60%);
+            mask-size: 12px 12px;
+            text-shadow: 0 0 20px rgba(255, 157, 0, 0.6);
+            transition: opacity 0.3s ease;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.3; }
-            50% { transform: scale(1.1); opacity: 0.6; }
-            100% { transform: scale(1); opacity: 0.3; }
-        }
-
+        /* Pokazuj tylko gdy nie ma tekstu */
         body.no-text .corner-star {
-            opacity: 0.6;
-            animation: pulse 4s infinite ease-in-out;
+            opacity: 0.7; /* Świecą światłem ciągłym */
         }
 
-        .tl { top: 30px; left: 30px; }
-        .tr { top: 30px; right: 30px; }
-        .bl { bottom: 30px; left: 30px; }
-        .br { bottom: 30px; right: 30px; }
+        .tl { top: 40px; left: 40px; }
+        .tr { top: 40px; right: 40px; }
+        .bl { bottom: 40px; left: 40px; }
+        .br { bottom: 40px; right: 40px; }
 
-        /* TEKST GŁÓWNY - POWIĘKSZONY */
+        /* TEKST GŁÓWNY */
         #display-text {
             position: relative; 
-            width: 94vw; 
+            width: 96vw; 
             z-index: 10;
             text-align: left; 
             white-space: pre-wrap;
-            line-height: 1.05; 
-            letter-spacing: 0.1em;
+            line-height: 1.0; 
+            letter-spacing: 0.08em;
             
-            /* POCZĄTKOWY ROZMIAR - POWRÓT DO DUŻEGO */
-            font-size: 18vh; 
+            /* POCZĄTKOWY ROZMIAR */
+            font-size: 22vh; 
 
-            /* KROPKI: IDEALNIE WYŚRODKOWANE */
-            -webkit-mask-image: radial-gradient(circle, white 38%, transparent 55%);
-            mask-image: radial-gradient(circle, white 38%, transparent 55%);
-            mask-size: 0.09em 0.09em; 
-            -webkit-mask-size: 0.09em 0.09em;
+            /* KROPKI */
+            -webkit-mask-image: radial-gradient(circle, white 40%, transparent 55%);
+            mask-image: radial-gradient(circle, white 40%, transparent 55%);
+            mask-size: 0.08em 0.08em; 
 
-            text-shadow: 0 0 12px rgba(255, 157, 0, 0.4);
-            transition: opacity 0.15s;
+            text-shadow: 0 0 15px rgba(255, 157, 0, 0.5);
         }
 
+        /* Delikatne linie rastrowe */
         .scanlines {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.12) 0px, transparent 2px);
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, transparent 2px);
             z-index: 15; pointer-events: none;
         }
     </style>
@@ -93,13 +87,12 @@
         const body = document.body;
 
         function adjustFontSize() {
-            // Startujemy od dużej czcionki (18vh to prawie 1/5 ekranu na wysokość litery)
-            let fontSize = 18; 
+            let fontSize = 22; 
             box.style.fontSize = fontSize + "vh";
 
-            // Zmniejszamy tylko tyle, ile absolutnie trzeba, by zmieścić 8 linii
-            while ((box.scrollHeight > window.innerHeight * 0.90 || box.scrollWidth > window.innerWidth * 0.94) && fontSize > 2) {
-                fontSize -= 0.3;
+            // Skaluje tekst tak, by wypełniał ekran przy zachowaniu czytelności
+            while ((box.scrollHeight > window.innerHeight * 0.95 || box.scrollWidth > window.innerWidth * 0.96) && fontSize > 2) {
+                fontSize -= 0.2;
                 box.style.fontSize = fontSize + "vh";
             }
         }
@@ -120,6 +113,7 @@
         };
 
         window.onresize = adjustFontSize;
+        adjustFontSize();
     </script>
 </body>
 </html>
